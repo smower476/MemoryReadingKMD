@@ -29,7 +29,7 @@ PVOID get_system_module_base(const char* module_name)
 
 	if (modules)
 		ExFreePoolWithTag(modules, NULL);
-	if (module_base <= NULL)
+	if (module_base == NULL) // <=
 		return NULL;
 
 	return module_base;

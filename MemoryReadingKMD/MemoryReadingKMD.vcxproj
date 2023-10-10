@@ -44,6 +44,7 @@
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -96,6 +97,7 @@
     </Link>
     <ClCompile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -120,6 +122,7 @@
     <ClInclude Include="memory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="memory.cpp" />
     <ClCompile Include="hook.cpp" />
   </ItemGroup>
