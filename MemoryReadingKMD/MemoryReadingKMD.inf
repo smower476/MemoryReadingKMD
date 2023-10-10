@@ -1,0 +1,77 @@
+;
+; MemoryReadingKMD.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System ; TODO: specify appropriate Class
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=MemoryReadingKMD.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+MemoryReadingKMD_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+MemoryReadingKMD.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%MemoryReadingKMD.DeviceDesc%=MemoryReadingKMD_Device, Root\MemoryReadingKMD ; TODO: edit hw-id
+
+[MemoryReadingKMD_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+MemoryReadingKMD.sys
+
+;-------------- Service installation
+[MemoryReadingKMD_Device.NT.Services]
+AddService = MemoryReadingKMD,%SPSVCINST_ASSOCSERVICE%, MemoryReadingKMD_Service_Inst
+
+; -------------- MemoryReadingKMD driver install sections
+[MemoryReadingKMD_Service_Inst]
+DisplayName    = %MemoryReadingKMD.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\MemoryReadingKMD.sys
+
+;
+;--- MemoryReadingKMD_Device Coinstaller installation ------
+;
+
+[MemoryReadingKMD_Device.NT.CoInstallers]
+AddReg=MemoryReadingKMD_Device_CoInstaller_AddReg
+CopyFiles=MemoryReadingKMD_Device_CoInstaller_CopyFiles
+
+[MemoryReadingKMD_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[MemoryReadingKMD_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[MemoryReadingKMD_Device.NT.Wdf]
+KmdfService =  MemoryReadingKMD, MemoryReadingKMD_wdfsect
+[MemoryReadingKMD_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "MemoryReadingKMD Installation Disk"
+MemoryReadingKMD.DeviceDesc = "MemoryReadingKMD Device"
+MemoryReadingKMD.SVCDESC = "MemoryReadingKMD Service"
