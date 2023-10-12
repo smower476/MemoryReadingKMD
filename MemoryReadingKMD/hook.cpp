@@ -8,8 +8,10 @@ bool nullhook::call_kernel_function(void* kernel_function_address) {
 		return false;
 	
 	BYTE orig[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	BYTE shell_code[] = { 0x48, 0xB8 }; // mov rax, fffxxx...
-	BYTE shell_code_end[] = { 0xFF, 0xE0 };// jmp rax
+	BYTE shell_code[] = { 0x48, 0xB8 }; // mov rax, fffxxx... //48 C7 C0 xx xx xx xx
+
+	BYTE shell_code_end[] = { 0xFF, 0xE0 };// jmp rax // FF 10
+
 	//change 11 and 12
 	RtlSecureZeroMemory(&orig, sizeof(orig));
 	memcpy((PVOID)((ULONG_PTR)orig), &shell_code, sizeof(shell_code));
