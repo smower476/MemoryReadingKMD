@@ -84,7 +84,7 @@ ULONG64 get_module_base_x64(PEPROCESS proc, UNICODE_STRING module_name) {
 		KeUnstackDetachProcess(&state);
 		return NULL;
 	}
-	for (PLIST_ENTRY list = (PLIST_ENTRY)pLdr->InMemoryOrderModuleList.Flink; list != &pLdr->InMemoryOrderModuleList; list = (PLIST_ENTRY)list->Flink) {
+	for (PLIST_ENTRY list = (PLIST_ENTRY)pLdr->ModuleListLoadOrder.Flink; list != &pLdr->ModuleListLoadOrder; list = (PLIST_ENTRY)list->Flink) {
 		PLDR_DATA_TABLE_ENTRY pEntry = CONTAINING_RECORD(list, LDR_DATA_TABLE_ENTRY, InLoadOrderModuleList);
 	}//different from video
 }

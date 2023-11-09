@@ -5,7 +5,7 @@
 #include <ntstrsafe.h>
 #include <wdm.h>
 #pragma comment (lib, "ntoskrnl.lib")
-#define CONTAINING_RECORD	(address, type, field) ((type*)(((ULONG_PTR)address) - (ULONG_PTR)(&(((type*)0)->field))))
+//#define CONTAINING_RECORD	(address, type, field) ((type*)(((ULONG_PTR)address) - (ULONG_PTR)(&(((type*)0)->field))))
 
 typedef enum _SYSTEM_INFORMATION_CLASS
 {
@@ -107,19 +107,14 @@ typedef struct _PEB_LDR_DATA
 	PVOID SsHandle;
 	LIST_ENTRY ModuleListLoadOrder;
 	LIST_ENTRY ModuleListMemoryOrder;
-	LIST_ENTRY ModuleListInitialization;
-	PVOID EntryInProgress;
-#if (NTDDI_VERSION >= NTDDI_WIN7)
-	UCHAR ShutdownInProgress;
-	PVOID ShutdownThreadId;
-#endif
+	LIST_ENTRY ModuleListInitOrder;
 } PEB_LDR_DATA, * PPEB_LDR_DATA;
 
 typedef struct _LDR_DATA_TABLE_ENTRY
 {
-	LIST_ENTRY InLoadOrderLinks;
-	LIST_ENTRY InMemoryOrderLinks;
-	LIST_ENTRY InInitializationOrderLinks;
+	LIST_ENTRY InLoadOrderModuleList;
+	LIST_ENTRY InMemoryOrderModuleLinst;
+	LIST_ENTRY InInitializationOrderModuleLinst;
 	PVOID DllBase;
 	PVOID EntryPoint;
 	ULONG SizeOfImage;

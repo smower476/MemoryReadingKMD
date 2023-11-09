@@ -36,4 +36,5 @@ NTSTATUS nullhook::hook_handler(PVOID called_param) {
 		PsLookupProcessByProcessId((HANDLE)instructions->pid, &process);
 		ULONG base_address64 = NULL;
 		base_address64 = get_module_base_x64(process, ModuleName);
+	}
 }
