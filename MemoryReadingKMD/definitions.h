@@ -5,6 +5,7 @@
 #include <ntstrsafe.h>
 #include <wdm.h>
 #pragma comment (lib, "ntoskrnl.lib")
+#define CONTAINING_RECORD	(address, type, field) ((type*)(((ULONG_PTR)address) - (ULONG_PTR)(&(((type*)0)->field))))
 
 typedef enum _SYSTEM_INFORMATION_CLASS
 {
@@ -79,33 +80,91 @@ extern "C" NTSTATUS NTAPI MmCopyVirtualMemory
 	PSIZE_T ReturnSize
 );
 
-typedef struct _PEB_LDR_DATA {
-	BYTE Reserved1[8];
-	PVOID Reserved2[3];
-	LIST_ENTRY InMemoryOrderModuleList;
+/*typedef struct _RTL_PROCESS_MODULE_INFORMATION
+{
+	ULONG Section;
+	PVOID MappedBase;
+	PVOID ImageBase;
+	ULONG ImageSize;
+	ULONG Flags;
+	USHORT LoadOrderIndex;
+	USHORT InitOrderIndex;
+	USHORT LoadCount;
+	USHORT OffsetToFileName;
+	CHAR FullPathName[256];
+} RTL_PROCESS_MODULE_INFORMATION, * PRTL_PROCESS_MODULE_INFORMATION;
+
+typedef struct _RTL_PROCESS_MODULES
+{
+	ULONG NumberOfModules;
+	RTL_PROCESS_MODULE_INFORMATION Modules[1];
+} RTL_PROCESS_MODULES, * PRTL_PROCESS_MODULES;*/
+
+typedef struct _PEB_LDR_DATA
+{
+	ULONG Length;
+	BOOLEAN Initialized;
+	PVOID SsHandle;
+	LIST_ENTRY ModuleListLoadOrder;
+	LIST_ENTRY ModuleListMemoryOrder;
+	LIST_ENTRY ModuleListInitialization;
+	PVOID EntryInProgress;
+#if (NTDDI_VERSION >= NTDDI_WIN7)
+	UCHAR ShutdownInProgress;
+	PVOID ShutdownThreadId;
+#endif
 } PEB_LDR_DATA, * PPEB_LDR_DATA;
 
-typedef struct _RTL_USER_PROCESS_PARAMETERS {
-	BYTE Reserved1[16];
-	PVOID Reserved2[10];
+typedef struct _LDR_DATA_TABLE_ENTRY
+{
+	LIST_ENTRY InLoadOrderLinks;
+	LIST_ENTRY InMemoryOrderLinks;
+	LIST_ENTRY InInitializationOrderLinks;
+	PVOID DllBase;
+	PVOID EntryPoint;
+	ULONG SizeOfImage;
+	UNICODE_STRING FullDllName;
+	UNICODE_STRING BaseDllName;
+	ULONG Flags;
+	USHORT LoadCount;
+	USHORT TlsIndex;
+	LIST_ENTRY HashLinks;
+	PVOID SectionPointer;
+	ULONG CheckSum;
+	ULONG TimeDateStamp;
+} LDR_DATA_TABLE_ENTRY, * PLDR_DATA_TABLE_ENTRY;
+
+typedef struct _RTL_USER_PROCESS_PARAMETRS {
+	BYTE Reserves[16];
+	PVOID Reserved1[10];
 	UNICODE_STRING ImagePathName;
 	UNICODE_STRING CommandLine;
-} RTL_USER_PROCESS_PARAMETERS, * PRTL_USER_PROCESS_PARAMETERS;
+} RTL_USER_PROCESS_PARAMETRS, *PRTL_USER_PROCESS_PARAMETERS;
 
-typedef VOID(NTAPI* PPS_POST_PROCESS_INIT_ROUTINE)(VOID);
+typedef
+VOID
+(NTAPI* PPS_POST_PROCESS_INIT_ROUTINE)(
+	VOID);
 
-typedef struct _PEB {
+typedef struct _PEB
+{
 	BYTE Reserved1[2];
 	BYTE BeingDebugged;
 	BYTE Reserved2[1];
 	PVOID Reserved3[2];
 	PPEB_LDR_DATA Ldr;
 	PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
-	BYTE Reserved4[104];
-	PVOID Reserved5[52];
+	PVOID Reserved4[3];
+	PVOID AtlThunkSListPtr;
+	PVOID Reserved5;
+	ULONG Reserved6;
+	PVOID Reserved7;
+	ULONG Reserved8;
+	ULONG AtlThunkSListPtr32;
+	PVOID Reserved9[45];
+	BYTE Reserved10[96];
 	PPS_POST_PROCESS_INIT_ROUTINE PostProcessInitRoutine;
-	BYTE Reserved6[128];
-	PVOID Reserved7[1];
+	BYTE Reserved11[128];
+	PVOID Reserved12[1];
 	ULONG SessionId;
 } PEB, * PPEB;
-

@@ -80,4 +80,11 @@ ULONG64 get_module_base_x64(PEPROCESS proc, UNICODE_STRING module_name) {
 	KeStackAttachProcess(proc, &state);
 	PPEB_LDR_DATA pLdr = (PPEB_LDR_DATA)pPeb->Ldr;
 
+	if (!pLdr) {
+		KeUnstackDetachProcess(&state);
+		return NULL;
+	}
+	for (PLIST_ENTRY list = (PLIST_ENTRY)pLdr->InMemoryOrderModuleList.Flink; list != &pLdr->InMemoryOrderModuleList; list = (PLIST_ENTRY)list->Flink) {
+		PLDR_DATA_TABLE_ENTRY pEntry = CONTAINING_RECORD(list, LDR_DATA_TABLE_ENTRY, InLoadOrderModuleList);
+	}//different from video
 }
