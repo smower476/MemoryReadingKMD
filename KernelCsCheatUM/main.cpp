@@ -98,6 +98,10 @@ bool write_memory(UINT_PTR write_address, UINT_PTR source_address, SIZE_T write_
 	instructions.buffer_address = (void*)source_address;
 	instructions.size = write_size;
 	call_hook(&instructions);
-	return TRUE;
+	return true;
+}
 
+template<typename S>
+bool write(UINT_PTR write_address, const S& value); {
+	return write_memory(write_address, (UINT_PTR)&value, sizeof(S));
 }

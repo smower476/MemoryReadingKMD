@@ -1,16 +1,6 @@
 #include "memory.h"
 
-typedef struct _NULL_MEMORY_ {
-	void* buffer_address;
-	UINT_PTR address;
-	ULONGLONG size;
-	ULONG pid;
-	BOOLEAN write;
-	BOOLEAN read;
-	BOOLEAN req_base;
-	void* output;
-	const char* module_name;
-}NULL_MEMORY;
+
 
 PVOID get_system_module_base(const char* module_name)
 {
@@ -79,4 +69,15 @@ bool write_to_read_only_memory(void* address, void* buffer, size_t size) {
 	MmUnlockPages(Mdl);
 	IoFreeMdl(Mdl);
 	return true;
+}
+
+ULONG64 get_module_base_x64(PEPROCESS proc, UNICODE_STRING module_name) {
+	PPEB pPeb = PsGetProcessPeb(proc);
+	if (!pPeb) {
+		return NULL;
+	}
+	KAPC_STATE state;
+	KeStackAttachProcess(proc, &state);
+	PPEB_LDR_DATA pLdr = (PPEB_LDR_DATA)pPeb->Ldr;
+
 }

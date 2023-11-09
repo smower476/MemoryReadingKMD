@@ -24,5 +24,16 @@ bool nullhook::call_kernel_function(void* kernel_function_address) {
 }
 
 NTSTATUS nullhook::hook_handler(PVOID called_param) {
-	return STATUS_SUCCESS;
+	NULL_MEMORY* instructions = (NULL_MEMORY*)called_param;
+
+	if (instructions->req_base != FALSE) {
+		ANSI_STRING AS;
+		UNICODE_STRING ModuleName;
+
+		RtlInitAnsiString(&AS, instructions->module_name);
+		RtlAnsiStringToUnicodeString(&ModuleName, &AS, TRUE);
+		PEPROCESS process;
+		PsLookupProcessByProcessId((HANDLE)instructions->pid, &process);
+		ULONG base_address64 = NULL;
+		base_address64 = get_module_base_x64(process, ModuleName);
 }
