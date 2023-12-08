@@ -135,18 +135,18 @@ bool write_kernel_memory(HANDLE pid, uintptr_t address, void* buffer, SIZE_T siz
 	if (((uintptr_t)info.BaseAddress + info.RegionSize) < (address + size))
 	{
 		KeUnstackDetachProcess(&state);
-		return;
+		return; //return smth
 	}
 
-	if (!(info.State & MEM_COMMIT) || info.Protect & (PAGE_GUARD | PAGE_NOACCESS))){
+	if (!(info.State & MEM_COMMIT) || info.Protect & (PAGE_GUARD | PAGE_NOACCESS)){
 		KeUnstackDetachProcess(&state);
 		return false;
 	}
-	if ((info.Protect & PAGE_EXECUTE_READWRITE) || (info, Protect & PAGE_EXECUTE_WRITECOPY) 
-		|| (info.Protect & PAGE_READWRITE) || (info, Protect & PAGE_WRITECOPY))
+	if ((info.Protect & PAGE_EXECUTE_READWRITE) || (info.Protect & PAGE_EXECUTE_WRITECOPY) 
+		|| (info.Protect & PAGE_READWRITE) || (info.Protect & PAGE_WRITECOPY))
 	{
 		RtlCopyMemory((void*)address, buffer, size);
 	}
 	KeUnstackDetachProcess(&state);
-	return true
+	return true;
 }
