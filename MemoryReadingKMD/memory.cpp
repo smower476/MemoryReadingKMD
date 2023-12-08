@@ -135,7 +135,7 @@ bool write_kernel_memory(HANDLE pid, uintptr_t address, void* buffer, SIZE_T siz
 	if (((uintptr_t)info.BaseAddress + info.RegionSize) < (address + size))
 	{
 		KeUnstackDetachProcess(&state);
-		return NULL; //return smth
+		return false; //return smth
 	}
 
 	if (!(info.State & MEM_COMMIT) || info.Protect & (PAGE_GUARD | PAGE_NOACCESS)){

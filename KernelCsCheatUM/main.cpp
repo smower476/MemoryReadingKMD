@@ -24,6 +24,7 @@ std::uint32_t process_id = 0;
 
 template<typename ... Arg>
 uint64_t call_hook(const Arg ... args) {
+	LoadLibrary("user32.dll");
 	void* hooked_func = GetProcAddress(LoadLibrary("win32u.dll"),  "NtOpenCompositionSurfaceSectionInfo");
 	auto func = static_cast<uint64_t(_stdcall*)(Arg...)>(hooked_func);
 
@@ -108,7 +109,15 @@ bool write(UINT_PTR write_address, const S& value) {
 
 int main()
 {
-	process_id = get_process_id("msedge.exe");
-	base_address = get_module_base_address("msedge.exe");
-	std::cout << base_address ? 'y' : 'n';
+	//LoadLibrary("win32u.dll"); 
+	process_id = get_process_id("notepad.exe");
+	base_address = get_module_base_address("notepad.exe");
+	if (!base_address) {
+		printf("n");
+	}
+	else {
+		printf("y");
+	}
+	Sleep(6000);
+	return NULL;
 }
