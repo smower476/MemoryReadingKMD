@@ -20,4 +20,5 @@ typedef struct _NULL_MEMORY_ {
 	BOOLEAN req_base;
 	void* output;
 	const char* module_name;
+	ULONG64 base_address;
 }NULL_MEMORY;

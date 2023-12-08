@@ -65,7 +65,7 @@ bool write_to_read_only_memory(void* address, void* buffer, size_t size) {
 	PVOID Mapping = MmMapLockedPagesSpecifyCache(Mdl, KernelMode, MmNonCached, NULL, FALSE, NormalPagePriority);
 
 	write_memory(Mapping, buffer, size);
-	MmUnmapLockedPages(Mapping, Mdl);	
+	MmUnmapLockedPages(Mapping, Mdl);
 	MmUnlockPages(Mdl);
 	IoFreeMdl(Mdl);
 	return true;
@@ -86,5 +86,67 @@ ULONG64 get_module_base_x64(PEPROCESS proc, UNICODE_STRING module_name) {
 	}
 	for (PLIST_ENTRY list = (PLIST_ENTRY)pLdr->ModuleListLoadOrder.Flink; list != &pLdr->ModuleListLoadOrder; list = (PLIST_ENTRY)list->Flink) {
 		PLDR_DATA_TABLE_ENTRY pEntry = CONTAINING_RECORD(list, LDR_DATA_TABLE_ENTRY, InLoadOrderModuleList);
-	}//different from video
+
+		if (RtlCompareUnicodeString(&pEntry->BaseDllName, &module_name, TRUE) == NULL) {
+			ULONG64 baseAddr = (ULONG64)pEntry->DllBase;
+			KeUnstackDetachProcess(&state);
+			return baseAddr;
+		}
+	}//different from video ?
+	KeUnstackDetachProcess(&state);
+	return NULL;
+}
+
+bool read_kernel_memory(HANDLE pid, uintptr_t address, void* buffer, SIZE_T size)
+{
+	if (!buffer || !address || !size) {
+		return false;
+	}
+	SIZE_T bytes = 0;
+	NTSTATUS status = STATUS_SUCCESS;
+	PEPROCESS process;
+	PsLookupProcessByProcessId((HANDLE)pid, &process);
+
+	status = MmCopyVirtualMemory(process, (void*)address, (PEPROCESS)PsGetCurrentProcess(), (void*)buffer, size, KernelMode, &bytes);
+
+	return NT_SUCCESS(status) ? true : false; // if statement
+
+
+}
+
+bool write_kernel_memory(HANDLE pid, uintptr_t address, void* buffer, SIZE_T size)
+{
+	if (!buffer || !address || !size) {
+		return false;
+	}
+	NTSTATUS status = STATUS_SUCCESS;
+	PEPROCESS process;
+	PsLookupProcessByProcessId((HANDLE)pid, &process);
+
+	KAPC_STATE state;
+	KeStackAttachProcess((PEPROCESS)process, &state);
+
+	MEMORY_BASIC_INFORMATION info;
+	status = ZwQueryVirtualMemory(ZwCurrentProcess(), (PVOID)address, MemoryBasicInformation, &info, sizeof(info), NULL);
+	if (!NT_SUCCESS(status)) {
+		KeUnstackDetachProcess(&state);
+		return NULL;
+	}
+	if (((uintptr_t)info.BaseAddress + info.RegionSize) < (address + size))
+	{
+		KeUnstackDetachProcess(&state);
+		return;
+	}
+
+	if (!(info.State & MEM_COMMIT) || info.Protect & (PAGE_GUARD | PAGE_NOACCESS))){
+		KeUnstackDetachProcess(&state);
+		return false;
+	}
+	if ((info.Protect & PAGE_EXECUTE_READWRITE) || (info, Protect & PAGE_EXECUTE_WRITECOPY) 
+		|| (info.Protect & PAGE_READWRITE) || (info, Protect & PAGE_WRITECOPY))
+	{
+		RtlCopyMemory((void*)address, buffer, size);
+	}
+	KeUnstackDetachProcess(&state);
+	return true
 }

@@ -36,5 +36,28 @@ NTSTATUS nullhook::hook_handler(PVOID called_param) {
 		PsLookupProcessByProcessId((HANDLE)instructions->pid, &process);
 		ULONG base_address64 = NULL;
 		base_address64 = get_module_base_x64(process, ModuleName);
+		instructions->base_address = base_address64;
+		RtlFreeUnicodeString(&ModuleName);
 	}
+	if (instructions->write != FALSE)
+	{
+		if (instructions->address < 0x7FFFFFFFFFFF && instructions->address > 0) {
+			PVOID kernelBuff = ExAllocatePool(NonPagedPool, instructions->size);
+			if (!kernelBuff) {
+				return STATUS_UNSUCCESSFUL;
+			}
+			if (!memcpy(kernelBuff, instructions->buffer_address, instructions->size)) {
+				return STATUS_UNSUCCESSFUL;
+			}
+			PEPROCESS process;
+			PsLookupProcessByProcessId((HANDLE)instructions->pid, &process);
+			write_kernel_memory((HANDLE)instructions->pid, instructions->address, kernelBuff, instructions->size);
+			ExFreePool(kernelBuff);
+		}
+	}
+	if (instructions->address < 0x7FFFFFFFFFFF && instructions->address > 0) {
+		read_kernel_memory((HANDLE)instructions->pid, instructions->address, instructions->output, instructions->size);
+
+	}
+	return STATUS_SUCCESS;
 }
