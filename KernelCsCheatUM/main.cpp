@@ -24,8 +24,8 @@ std::uint32_t process_id = 0;
 
 template<typename ... Arg>
 uint64_t call_hook(const Arg ... args) {
-	LoadLibrary("user32.dll");
-	void* hooked_func = GetProcAddress(LoadLibrary("win32u.dll"),  "NtOpenCompositionSurfaceSectionInfo");
+	//LoadLibrary("user32.dll");
+	void* hooked_func = GetProcAddress(LoadLibrary("win32u.dll"),  "NtQueryCompositionSurfaceStatistics"); // NtOpenCompositionSurfaceSectionInfo 
 	auto func = static_cast<uint64_t(_stdcall*)(Arg...)>(hooked_func);
 
 		return func(args ...);
@@ -36,7 +36,7 @@ struct HandleDisposer
 	using pointer = HANDLE;
 	void operator()(HANDLE handle) const
 	{
-		if (handle != NULL || handle != INVALID_HANDLE_VALUE)
+		if ((handle != NULL) or (handle != INVALID_HANDLE_VALUE))
 			CloseHandle(handle);
 	}
 };
@@ -109,15 +109,17 @@ bool write(UINT_PTR write_address, const S& value) {
 
 int main()
 {
-	//LoadLibrary("win32u.dll"); 
-	process_id = get_process_id("notepad.exe");
-	base_address = get_module_base_address("notepad.exe");
-	if (!base_address) {
-		printf("n");
+	std::cout << "Hi" << std::endl;
+	Sleep(1000);
+	process_id = get_process_id("KMDtest.exe");
+	std::cout<< process_id <<std::endl;
+	Sleep(6000);
+	if (process_id) {
+		base_address = get_module_base_address("KERNELBASE.dll");
+		std::cout << base_address << std::endl;
+		Sleep(6000);
 	}
-	else {
-		printf("y");
-	}
+	std::cout << (process_id ? 'y' : 'n');
 	Sleep(6000);
 	return NULL;
 }
