@@ -48,12 +48,12 @@ PVOID get_system_module_export(const char* module_name, LPCSTR routine_name)
 
 bool write_memory(void* address, void* buffer, size_t size)
 {
-	if (memcpy(address, buffer, size)) // #define RtlCopyMemory(Destination,Source,Length) memcpy((Destination),(Source),(Length))
+	if (!RtlCopyMemory(address, buffer, size)) // #define RtlCopyMemory(Destination,Source,Length) memcpy((Destination),(Source),(Length))
 	{									// ! strange ! symbol
-		return true;					// true <> false
+		return false;					// true <> false
 	}									//  return (x >= 0 && x < 10);
 	else {
-		return false;
+		return true;
 	}
 }
 

@@ -114,16 +114,22 @@ int main()
 	LoadLibrary("user32.dll");
 	std::cout << "Hi" << std::endl;
 	Sleep(1000);
-	process_id = get_process_id("KMDtest.exe");
+	process_id = get_process_id("Stardew Valley.exe");
 	std::cout<< process_id <<std::endl;
 	Sleep(1000);
 	//std::cout << get_module_base_address("KERNELBASE.dll");
 	if (process_id != 0) {
-		base_address = get_module_base_address("KERNELBASE.dll");
+		base_address = get_module_base_address("coreclr.dll");
 		std::cout << base_address << std::endl;
-		Sleep(6000);
+		Sleep(1000);
 	}
-	std::cout << (process_id ? 'y' : 'n');
+	std::cout << (process_id ? 'y' : 'n')<<std::endl;
+	int s;
+	std::cin >>s;
+	write(0x29D312C2044, s);
+	std::cout << "write"<<std::endl;
+	std::cout<<Read<int>(0x29D312C2044)<<" Read INT";
+	
 	Sleep(6000);
 	return NULL;
 }
