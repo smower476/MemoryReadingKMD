@@ -25,7 +25,7 @@ std::uint32_t process_id = 0;
 template<typename ... Arg>
 uint64_t call_hook(const Arg ... args) {
 	//LoadLibrary("user32.dll");
-	void* hooked_func = GetProcAddress(LoadLibrary("win32u.dll"),  "NtDxgkPinResources"); // NtOpenCompositionSurfaceSectionInfo 
+	void* hooked_func = GetProcAddress(LoadLibrary("win32u.dll"),  "NtDxgkDuplicateHandle"); // NtOpenCompositionSurfaceSectionInfo 
 	auto func = static_cast<uint64_t(_stdcall*)(Arg...)>(hooked_func);
 
 		return func(args ...);
