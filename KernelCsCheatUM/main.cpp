@@ -112,24 +112,55 @@ bool write(UINT_PTR write_address, const S& value) {
 int main()
 {
 	LoadLibrary("user32.dll");
-	std::cout << "Hi" << std::endl;
-	Sleep(1000);
-	process_id = get_process_id("Stardew Valley.exe");
-	std::cout<< process_id <<std::endl;
-	Sleep(1000);
-	//std::cout << get_module_base_address("KERNELBASE.dll");
-	if (process_id != 0) {
-		base_address = get_module_base_address("coreclr.dll");
-		std::cout << base_address << std::endl;
-		Sleep(1000);
-	}
-	std::cout << (process_id ? 'y' : 'n')<<std::endl;
-	int s;
-	std::cin >>s;
-	write(0x29D312C2044, s);
-	std::cout << "write"<<std::endl;
-	std::cout<<Read<int>(0x29D312C2044)<<" Read INT";
 	
-	Sleep(6000);
+	process_id = get_process_id("WINMINE.EXE");
+	std::cout<< process_id <<std::endl;
+	if (process_id == 0) {
+		std::cout << "process not found";
+		goto leave;
+	}
+	std::cout << "process id = "<< process_id << std::endl;
+	Sleep(1000);
+
+	//std::cout << get_module_base_address("KERNELBASE.dll");
+	base_address = get_module_base_address("WINMINE.EXE");
+	if (base_address == 0) {
+		std::cout << "dll not found";
+		goto leave;
+	}
+	std::cout <<"base address = " << base_address << std::endl;
+	Sleep(1000);
+	
+
+	char c;
+	while (true) {
+		std::cout << "Do you want to read or write memory? r/w" << std::endl << "e for exit" << std::endl;
+		std::cin >> c;
+		switch (c) {
+			case 'r':
+					std::cout<< "The value is " << Read<int32_t>(base_address + 0x5194) << std::endl;
+					break;
+			case 'w':
+				int32_t number;
+				std::cout << "Enter the number" << std::endl;
+				std::cin >> number;
+				write(base_address + 0x5194, number);
+				std::cout << "Done!" << std::endl;
+				break;
+			case 'e':
+				goto leave;
+			default:
+				std::cout << "Wrong value" << std::endl;
+				break;
+		}
+
+	
+	}
+
+	//std::cout<<Read<int>(0x29D312C2044)<<" Read INT";
+	
+leave: 
+	Sleep(5000);
+
 	return NULL;
 }
